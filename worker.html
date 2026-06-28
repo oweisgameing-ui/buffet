@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة عامل البوفيه</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+    <script>
+        document.documentElement.classList.add('auth-pending');
+        (function checkAuth() {
+            const raw = sessionStorage.getItem('user');
+            if (!raw) { window.location.replace('/index.html'); return; }
+            try {
+                const user = JSON.parse(raw);
+                if (!user || !user.username) window.location.replace('/index.html');
+            } catch(e) { window.location.replace('/index.html'); }
+        })();
+    </script>
+    <style>
+        html.auth-pending body { visibility: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green: #02cf65;
+            --green-dark: #009447;
+            --green-bg: #ecfdf5;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --amber: #f59e0b;
+            --amber-bg: #fffbeb;
+            --blue: #2563eb;
+            --blue-bg: #eff6ff;
+            --surface: #ffffff;
+            --bg: #f1f5f9;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --radius: 1rem;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ======= TOPBAR ======= */
+        .topbar {
+            background: linear-gradient(135deg, #02cf65, #009447);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 8px 20px -6px rgba(2,150,70,0.35);
+        }
+        .topbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 0.85rem; }
+        .topbar-avatar {
+            width: 3rem; height: 3rem;
+            border-radius: 0.85rem;
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem;
+        }
+        .topbar-name { font-size: 1.05rem; font-weight: 700; }
+        .topbar-role {
+            display: inline-flex;
+            background: rgba(255,255,255,0.18);
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+        .topbar-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 0.65rem;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.22); }
+        .btn-ghost svg { width: 1rem; height: 1rem; }
+
+        /* ======= STATUS CONTROL BAR ======= */
+        .status-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .status-bar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .status-controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+        .buffet-status-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .buffet-status-badge .dot {
+            width: 0.55rem; height: 0.55rem;
+            border-radius: 50%;
+        }
+        .buffet-status-badge.open { background: var(--green-bg); color: #047857; }
+        .buffet-status-badge.open .dot { background: var(--green); animation: pulse 1.5s infinite; }
+        .buffet-status-badge.stopped { background: var(--amber-bg); color: #92400e; }
+        .buffet-status-badge.stopped .dot { background: var(--amber); }
+        .buffet-status-badge.closed { background: var(--red-bg); color: #991b1b; }
+        .buffet-status-badge.closed .dot { background: var(--red); }
+
+        @keyframes pulse {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .ctrl-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1.1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem; font-weight: 700;
+            cursor: pointer; border: none;
+            transition: all 0.2s ease;
+        }
+        .ctrl-btn svg { width: 1rem; height: 1rem; }
+        .ctrl-btn.open-btn { background: var(--green-bg); color: #047857; border: 1.5px solid #6ee7b7; }
+        .ctrl-btn.open-btn:hover { background: #d1fae5; }
+        .ctrl-btn.prayer-btn { background: var(--amber-bg); color: #92400e; border: 1.5px solid #fcd34d; }
+        .ctrl-btn.prayer-btn:hover { background: #fef3c7; }
+        .ctrl-btn.close-btn { background: var(--red-bg); color: #991b1b; border: 1.5px solid #fca5a5; }
+        .ctrl-btn.close-btn:hover { background: #fee2e2; }
+        .ctrl-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .status-stats { display: flex; align-items: center; gap: 1.25rem; }
+        .stat-pill {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.85rem; font-weight: 600; color: var(--muted);
+        }
+        .stat-pill strong { color: var(--text); font-size: 1rem; }
+        .stat-pill svg { width: 1rem; height: 1rem; }
+
+        /* ======= PAGE CONTENT ======= */
+        .page-wrap {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ======= SECTION HEADER ======= */
+        .section-title {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-size: 1.05rem; font-weight: 700; color: var(--text);
+            margin-bottom: 1rem;
+        }
+        .section-title svg { width: 1.2rem; height: 1.2rem; color: var(--green-dark); }
+        .section-title .badge {
+            background: var(--green-bg);
+            color: #047857;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.15rem 0.6rem;
+        }
+
+        /* ======= ORDERS GRID ======= */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.1rem;
+        }
+
+        /* ======= ORDER CARD ======= */
+        .order-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s, opacity 0.4s;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .order-card.fading-out {
+            opacity: 0;
+            transform: scale(0.96);
+            transition: all 0.5s ease;
+        }
+
+        .order-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            background: #fafafa;
+        }
+        .order-code {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .order-code span { color: var(--blue); }
+        .order-time { font-size: 0.78rem; color: var(--muted); }
+
+        .order-card-body { padding: 1rem 1.1rem; flex: 1; }
+
+        .order-beneficiary {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .beneficiary-avatar {
+            width: 2.2rem; height: 2.2rem;
+            border-radius: 0.55rem;
+            background: var(--blue-bg);
+            color: var(--blue);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.95rem; flex-shrink: 0;
+        }
+        .beneficiary-name { font-weight: 700; font-size: 0.95rem; }
+        .beneficiary-loc { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; }
+        .beneficiary-loc svg { width: 0.85rem; height: 0.85rem; }
+
+        .order-items { margin-bottom: 0.85rem; }
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.45rem 0;
+            border-bottom: 1px dashed #f1f5f9;
+            font-size: 0.875rem;
+        }
+        .order-item:last-child { border-bottom: none; }
+        .item-name { color: var(--text); font-weight: 500; }
+        .item-qty-price {
+            display: flex; align-items: center; gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .item-qty {
+            background: var(--green-bg);
+            color: #047857;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+        }
+        .item-price { font-weight: 600; font-size: 0.85rem; color: var(--muted); }
+
+        .order-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 1.1rem;
+            background: #fafafa;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .order-total {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .order-total small { font-size: 0.75rem; font-weight: 500; color: var(--muted); }
+
+        .payment-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .payment-badge.cash { background: #dbeafe; color: #1e40af; }
+        .payment-badge.account { background: #f3e8ff; color: #7e22ce; }
+
+        /* ======= STATUS SECTION ======= */
+        .order-status-section {
+            padding: 0.85rem 1.1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .status-indicator {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.78rem; font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        .status-indicator svg { width: 0.85rem; height: 0.85rem; }
+        .status-indicator.pending { background: #fef9c3; color: #854d0e; }
+        .status-indicator.preparing { background: #dbeafe; color: #1e40af; }
+        .status-indicator.delivered { background: var(--green-bg); color: #047857; }
+
+        .action-buttons { display: flex; gap: 0.6rem; }
+
+        .action-btn {
+            flex: 1;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+            padding: 0.65rem 0.9rem;
+            border-radius: 0.7rem;
+            font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; border: none;
+            transition: all 0.15s ease;
+        }
+        .action-btn svg { width: 1rem; height: 1rem; }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-start {
+            background: linear-gradient(135deg, #02cf65, #009447);
+            color: #fff;
+            box-shadow: 0 4px 12px -4px rgba(2,150,70,0.4);
+        }
+        .btn-start:hover:not(:disabled) { transform: translateY(-1px); }
+
+        .btn-deliver {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 4px 12px -4px rgba(37,99,235,0.4);
+        }
+        .btn-deliver:hover:not(:disabled) { transform: translateY(-1px); }
+
+        .btn-cancel {
+            background: var(--red-bg);
+            color: #991b1b;
+            border: 1.5px solid #fca5a5;
+        }
+        .btn-cancel:hover:not(:disabled) { background: #fee2e2; }
+
+        /* ======= EMPTY STATE ======= */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--muted);
+            grid-column: 1 / -1;
+        }
+        .empty-state-icon {
+            width: 4rem; height: 4rem;
+            border-radius: 1.25rem;
+            background: var(--green-bg);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .empty-state-icon svg { width: 2rem; height: 2rem; color: var(--green-dark); }
+        .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+        .empty-state p { font-size: 0.9rem; }
+
+        /* ======= TOAST ======= */
+        .toast {
+            position: fixed; top: 1.5rem; left: 50%;
+            transform: translateX(-50%) translateY(-1rem);
+            background: #0f172a; color: #fff;
+            padding: 0.85rem 1.4rem; border-radius: 0.85rem;
+            font-size: 0.9rem; font-weight: 600;
+            box-shadow: 0 10px 25px -8px rgba(0,0,0,0.35);
+            opacity: 0; pointer-events: none;
+            transition: all 0.3s ease; z-index: 200;
+            display: flex; align-items: center; gap: 0.5rem;
+            max-width: 90vw;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #b91c1c; }
+        .toast.success { background: #047857; }
+        .toast svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem; height: 1rem;
+            border: 2px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ======= REALTIME PULSE ======= */
+        .realtime-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.78rem; font-weight: 600; color: var(--green-dark);
+            background: var(--green-bg);
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+        }
+        .realtime-badge .dot {
+            width: 0.5rem; height: 0.5rem;
+            border-radius: 50%; background: var(--green);
+            animation: pulse 1.5s infinite;
+        }
+
+        /* ======= RESPONSIVE ======= */
+        @media (max-width: 768px) {
+            .orders-grid { grid-template-columns: 1fr; }
+            .status-bar-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .topbar-actions { width: 100%; justify-content: flex-end; }
+        }
+
+        /* ======= MODAL ======= */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(15,23,42,0.55);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3);
+            width: 100%; max-width: 680px;
+            max-height: 85vh;
+            display: flex; flex-direction: column;
+            transform: translateY(16px) scale(0.98);
+            transition: transform 0.25s ease;
+            overflow: hidden;
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-box-sm { max-width: 460px; }
+
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: #fafafa;
+            flex-shrink: 0;
+        }
+        .modal-title {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-size: 1.05rem; font-weight: 700; color: var(--text);
+        }
+        .modal-title svg { width: 1.2rem; height: 1.2rem; color: var(--green-dark); }
+        .modal-close {
+            width: 2.1rem; height: 2.1rem;
+            border-radius: 0.6rem;
+            border: 1px solid var(--border);
+            background: transparent; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); transition: background 0.15s;
+        }
+        .modal-close:hover { background: var(--red-bg); color: #991b1b; border-color: #fca5a5; }
+        .modal-close svg { width: 1rem; height: 1rem; }
+
+        .modal-body {
+            padding: 1.25rem 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+
+        /* ======= ADD PRODUCT BUTTON ======= */
+        .add-product-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #02cf65, #009447);
+            color: #fff; font-weight: 700; font-size: 0.9rem;
+            border: none; border-radius: 0.85rem; cursor: pointer;
+            box-shadow: 0 4px 12px -4px rgba(2,150,70,0.4);
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
+        }
+        .add-product-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px -4px rgba(2,150,70,0.45); }
+        .add-product-btn svg { width: 1.1rem; height: 1.1rem; }
+
+        /* ======= PRODUCTS LIST ======= */
+        .products-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .products-loading {
+            display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            padding: 3rem; color: var(--muted); font-size: 0.9rem; font-weight: 600;
+        }
+        .loading-spinner-dark {
+            width: 1.25rem; height: 1.25rem;
+            border: 2px solid var(--border);
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .product-row {
+            display: flex; align-items: center; gap: 0.85rem;
+            background: #fafafa;
+            border: 1px solid var(--border);
+            border-radius: 0.9rem;
+            padding: 0.85rem 1rem;
+            transition: box-shadow 0.15s;
+        }
+        .product-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
+        .product-icon {
+            width: 2.6rem; height: 2.6rem; flex-shrink: 0;
+            border-radius: 0.65rem;
+            background: var(--green-bg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+        .product-info { flex: 1; min-width: 0; }
+        .product-name { font-weight: 700; font-size: 0.95rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap; }
+        .product-price { font-size: 0.82rem; font-weight: 600; color: var(--green-dark); background: var(--green-bg); padding: 0.1rem 0.45rem; border-radius: 999px; }
+        .product-category { font-size: 0.78rem; color: var(--muted); }
+        .product-qty-badge {
+            font-size: 0.78rem; font-weight: 700;
+            padding: 0.1rem 0.5rem; border-radius: 999px;
+        }
+        .product-qty-badge.in-stock { background: var(--blue-bg); color: var(--blue); }
+        .product-qty-badge.out-stock { background: var(--red-bg); color: #991b1b; }
+
+        .product-status-badge {
+            font-size: 0.75rem; font-weight: 700;
+            padding: 0.2rem 0.6rem; border-radius: 999px;
+            flex-shrink: 0;
+        }
+        .product-status-badge.available { background: var(--green-bg); color: #047857; }
+        .product-status-badge.unavailable { background: var(--red-bg); color: #991b1b; }
+
+        .product-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+        .prod-btn {
+            width: 2rem; height: 2rem;
+            border-radius: 0.5rem; border: 1px solid var(--border);
+            background: var(--surface); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); transition: all 0.15s;
+        }
+        .prod-btn svg { width: 0.9rem; height: 0.9rem; }
+        .prod-btn.edit:hover { background: var(--blue-bg); color: var(--blue); border-color: #93c5fd; }
+        .prod-btn.delete:hover { background: var(--red-bg); color: #991b1b; border-color: #fca5a5; }
+
+        /* ======= FORM ======= */
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+        .form-label { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+        .form-input {
+            padding: 0.65rem 0.85rem;
+            border: 1.5px solid var(--border);
+            border-radius: 0.7rem;
+            font-size: 0.9rem; font-family: inherit; color: var(--text);
+            background: var(--surface);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+        .form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(2,207,101,0.12); }
+
+        /* ======= STATUS TOGGLE ======= */
+        .toggle-group { display: flex; gap: 0.5rem; }
+        .toggle-btn {
+            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+            padding: 0.6rem 0.9rem;
+            border-radius: 0.7rem;
+            font-size: 0.85rem; font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--surface); color: var(--muted);
+            transition: all 0.15s;
+        }
+        .toggle-btn svg { width: 0.95rem; height: 0.95rem; }
+        .toggle-btn.active { border-color: var(--green); background: var(--green-bg); color: #047857; }
+        #toggleUnavailable.active { border-color: #fca5a5; background: var(--red-bg); color: #991b1b; }
+
+        /* ======= MODAL ACTIONS ======= */
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+        .save-btn {
+            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #02cf65, #009447);
+            color: #fff; font-weight: 700; font-size: 0.9rem;
+            border: none; border-radius: 0.8rem; cursor: pointer;
+            box-shadow: 0 4px 12px -4px rgba(2,150,70,0.4);
+            transition: transform 0.15s;
+        }
+        .save-btn:hover { transform: translateY(-1px); }
+        .save-btn svg { width: 1rem; height: 1rem; }
+        .cancel-edit-btn {
+            padding: 0.75rem 1.25rem;
+            border: 1.5px solid var(--border);
+            background: var(--surface); color: var(--muted);
+            font-weight: 700; font-size: 0.9rem;
+            border-radius: 0.8rem; cursor: pointer;
+            transition: background 0.15s;
+        }
+        .cancel-edit-btn:hover { background: var(--bg); }
+
+        .products-empty {
+            text-align: center; padding: 3rem 1rem;
+            color: var(--muted); font-size: 0.9rem;
+        }
+        .products-empty svg { width: 2.5rem; height: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; display: block; margin-inline: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-left">
+                <div class="topbar-avatar" id="userInitial">ع</div>
+                <div>
+                    <div class="topbar-name" id="userName">لوحة عامل البوفيه</div>
+                    <div class="topbar-role" id="userRole">عامل</div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <div class="realtime-badge">
+                    <span class="dot"></span>
+                    تحديث فوري
+                </div>
+                <button type="button" class="btn-ghost" id="logoutBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    خروج
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATUS CONTROL BAR -->
+    <div class="status-bar">
+        <div class="status-bar-inner">
+            <div class="status-controls">
+                <div class="buffet-status-badge open" id="buffetStatusBadge">
+                    <span class="dot"></span>
+                    <span id="buffetStatusText">البوفيه مفتوح</span>
+                </div>
+
+                <button class="ctrl-btn open-btn" id="btnOpen" title="فتح البوفيه">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    فتح البوفيه
+                </button>
+
+                <button class="ctrl-btn prayer-btn" id="btnPrayer" title="إيقاف للصلاة">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    إيقاف للصلاة
+                </button>
+
+                <button class="ctrl-btn close-btn" id="btnClose" title="إغلاق البوفيه">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    إغلاق البوفيه
+                </button>
+            </div>
+
+            <div class="status-stats">
+                <div class="stat-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    في الانتظار <strong id="statPending">0</strong>
+                </div>
+                <div class="stat-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 2 1.578 3.497L9 8 4.578 10.503 3 14 1.422 10.503 -3 8l4.578-2.503z" transform="translate(6,6)"/></svg>
+                    جاري التحضير <strong id="statPreparing">0</strong>
+                </div>
+                <div class="stat-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    تم التسليم اليوم <strong id="statDelivered">0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="page-wrap">
+
+        <!-- Pending Orders -->
+        <div id="sectionPending">
+            <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                طلبات جديدة — في الانتظار
+                <span class="badge" id="badgePending">0</span>
+            </div>
+            <div class="orders-grid" id="gridPending">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <h3>لا توجد طلبات جديدة</h3>
+                    <p>ستظهر الطلبات هنا فور وصولها</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preparing Orders -->
+        <div id="sectionPreparing">
+            <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+                جاري التحضير
+                <span class="badge" id="badgePreparing">0</span>
+            </div>
+            <div class="orders-grid" id="gridPreparing">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/></svg>
+                    </div>
+                    <h3>لا توجد طلبات قيد التحضير</h3>
+                    <p>اضغط "بدء التحضير" على أي طلب لتبدأ</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PRODUCTS MODAL -->
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ========================
+        // 1. Supabase Init
+        // ========================
+        const SUPABASE_URL = 'https://hnhocwwupkdbngbdzpnl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuaG9jd3d1cGtkYm5nYmR6cG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzAyMTIsImV4cCI6MjA5NzYwNjIxMn0.6WnDf6MWPp-avFIXUgbxPQpNDcbxVGvo7iOswxdeNEg';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ========================
+        // 2. State
+        // ========================
+        let currentUser = null;
+        let ordersMap = {};     // id -> order object
+        let buffetStatus = 'open'; // 'open' | 'prayer' | 'closed'
+
+        // ========================
+        // 3. Auth
+        // ========================
+        function loadUser() {
+            try {
+                const raw = sessionStorage.getItem('user');
+                if (!raw) { window.location.replace('/index.html'); return null; }
+                return JSON.parse(raw);
+            } catch(e) { window.location.replace('/index.html'); return null; }
+        }
+
+        function renderUserHeader() {
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userInitial').textContent = (currentUser.username || '?').charAt(0);
+            const labels = { worker: 'عامل البوفيه', admin: 'مدير', consumer: 'مستهلك' };
+            document.getElementById('userRole').textContent = labels[currentUser.user_type] || currentUser.user_type;
+        }
+
+        // ========================
+        // 4. Toast
+        // ========================
+        let toastTimer = null;
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            clearTimeout(toastTimer);
+            t.className = 'toast show ' + type;
+            const icon = type === 'error'
+                ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            t.innerHTML = icon + '<span>' + msg + '</span>';
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        // ========================
+        // 5. Buffet Status
+        // ========================
+        async function fetchBuffetStatus() {
+            const { data, error } = await sb
+                .from('buffet_settings')
+                .select('status')
+                .eq('id', 1)
+                .single();
+            if (!error && data) {
+                buffetStatus = data.status;
+                renderBuffetStatus();
+            }
+        }
+
+        function renderBuffetStatus() {
+            const badge = document.getElementById('buffetStatusBadge');
+            const text = document.getElementById('buffetStatusText');
+            const labels = { open: 'البوفيه مفتوح', prayer: 'إيقاف للصلاة', closed: 'البوفيه مغلق' };
+            const cls = { open: 'open', prayer: 'stopped', closed: 'closed' };
+            badge.className = 'buffet-status-badge ' + (cls[buffetStatus] || 'closed');
+            text.textContent = labels[buffetStatus] || 'غير معروف';
+
+            document.getElementById('btnOpen').disabled = buffetStatus === 'open';
+            document.getElementById('btnPrayer').disabled = buffetStatus === 'prayer';
+            document.getElementById('btnClose').disabled = buffetStatus === 'closed';
+        }
+
+        async function setBuffetStatus(newStatus) {
+            const { error } = await sb
+                .from('buffet_settings')
+                .upsert({ id: 1, status: newStatus }, { onConflict: 'id' });
+            if (error) {
+                showToast('تعذر تغيير حالة البوفيه', 'error');
+                return;
+            }
+            buffetStatus = newStatus;
+            renderBuffetStatus();
+            const labels = { open: 'تم فتح البوفيه ✅', prayer: 'تم إيقاف البوفيه للصلاة 🕌', closed: 'تم إغلاق البوفيه' };
+            showToast(labels[newStatus] || 'تم التحديث');
+        }
+
+        document.getElementById('btnOpen').addEventListener('click', () => setBuffetStatus('open'));
+        document.getElementById('btnPrayer').addEventListener('click', () => setBuffetStatus('prayer'));
+        document.getElementById('btnClose').addEventListener('click', () => setBuffetStatus('closed'));
+
+        // ========================
+        // 6. Fetch Active Orders
+        // ========================
+        async function fetchOrders() {
+            const { data, error } = await sb
+                .from('orders')
+                .select('*')
+                .in('status', ['pending', 'preparing'])
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                showToast('تعذر تحميل الطلبات', 'error');
+                return;
+            }
+
+            ordersMap = {};
+            (data || []).forEach(o => { ordersMap[o.id] = o; });
+            renderAllOrders();
+        }
+
+        async function fetchDailyStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const { data } = await sb
+                .from('orders')
+                .select('status')
+                .gte('created_at', today.toISOString());
+
+            const delivered = (data || []).filter(o => o.status === 'delivered').length;
+            document.getElementById('statDelivered').textContent = delivered;
+        }
+
+        // ========================
+        // 7. Render Orders
+        // ========================
+        function formatTime(isoStr) {
+            if (!isoStr) return '';
+            const d = new Date(isoStr);
+            return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderOrderCard(order) {
+            const items = Array.isArray(order.items) ? order.items : [];
+            const isPending = order.status === 'pending';
+            const isPreparing = order.status === 'preparing';
+            const payBadge = order.payment_type === 'cash'
+                ? '<span class="payment-badge cash">نقدي</span>'
+                : '<span class="payment-badge account">على الحساب</span>';
+
+            const itemsHtml = items.map(item => `
+                <div class="order-item">
+                    <span class="item-name">${escHtml(item.name || '')}</span>
+                    <div class="item-qty-price">
+                        <span class="item-qty">× ${item.qty}</span>
+                        <span class="item-price">${((item.price || 0) * (item.qty || 1)).toFixed(2)} ج</span>
+                    </div>
+                </div>
+            `).join('');
+
+            const statusHtml = isPending
+                ? `<span class="status-indicator pending">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        في الانتظار
+                   </span>`
+                : `<span class="status-indicator preparing">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/></svg>
+                        جاري التحضير
+                   </span>`;
+
+            const mainActionBtn = isPending
+                ? `<button class="action-btn btn-start" onclick="startPreparing('${order.id}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        بدء التحضير
+                   </button>`
+                : `<button class="action-btn btn-deliver" onclick="deliverOrder('${order.id}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
+                        تسليم الطلب
+                   </button>`;
+
+            return `
+            <div class="order-card" id="order-${order.id}">
+                <div class="order-card-header">
+                    <div class="order-code">طلب <span>#${String(order.id).slice(-6).toUpperCase()}</span></div>
+                    <div class="order-time">${formatTime(order.created_at)}</div>
+                </div>
+                <div class="order-card-body">
+                    <div class="order-beneficiary">
+                        <div class="beneficiary-avatar">${(order.beneficiary_name || '?').charAt(0)}</div>
+                        <div>
+                            <div class="beneficiary-name">${escHtml(order.beneficiary_name || '—')}</div>
+                            <div class="beneficiary-loc">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                                ${escHtml(order.delivery_location || 'غير محدد')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-items">${itemsHtml || '<div style="color:#94a3b8;font-size:0.85rem;">لا توجد أصناف</div>'}</div>
+                </div>
+                <div class="order-footer">
+                    <div class="order-total">${(order.total_amount || 0).toFixed(2)} ج <small>إجمالي</small></div>
+                    ${payBadge}
+                </div>
+                <div class="order-status-section">
+                    ${statusHtml}
+                    <div class="action-buttons">
+                        ${mainActionBtn}
+                        <button class="action-btn btn-cancel" onclick="cancelOrder('${order.id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function escHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function renderAllOrders() {
+            const allOrders = Object.values(ordersMap);
+            const pending = allOrders.filter(o => o.status === 'pending');
+            const preparing = allOrders.filter(o => o.status === 'preparing');
+
+            document.getElementById('badgePending').textContent = pending.length;
+            document.getElementById('badgePreparing').textContent = preparing.length;
+            document.getElementById('statPending').textContent = pending.length;
+            document.getElementById('statPreparing').textContent = preparing.length;
+
+            // Render pending
+            const gPending = document.getElementById('gridPending');
+            if (pending.length === 0) {
+                gPending.innerHTML = `<div class="empty-state">
+                    <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <h3>لا توجد طلبات جديدة</h3><p>ستظهر الطلبات هنا فور وصولها</p>
+                </div>`;
+            } else {
+                gPending.innerHTML = pending.map(renderOrderCard).join('');
+            }
+
+            // Render preparing
+            const gPreparing = document.getElementById('gridPreparing');
+            if (preparing.length === 0) {
+                gPreparing.innerHTML = `<div class="empty-state">
+                    <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/></svg></div>
+                    <h3>لا توجد طلبات قيد التحضير</h3><p>اضغط "بدء التحضير" على أي طلب لتبدأ</p>
+                </div>`;
+            } else {
+                gPreparing.innerHTML = preparing.map(renderOrderCard).join('');
+            }
+        }
+
+        // ========================
+        // 8. Order Actions
+        // ========================
+        async function startPreparing(orderId) {
+            const { error } = await sb
+                .from('orders')
+                .update({ status: 'preparing' })
+                .eq('id', orderId);
+            if (error) { showToast('حدث خطأ', 'error'); return; }
+            if (ordersMap[orderId]) ordersMap[orderId].status = 'preparing';
+            renderAllOrders();
+            showToast('بدأ تحضير الطلب 👨‍🍳');
+        }
+
+        async function deliverOrder(orderId) {
+            const { error } = await sb
+                .from('orders')
+                .update({ status: 'delivered' })
+                .eq('id', orderId);
+            if (error) { showToast('حدث خطأ', 'error'); return; }
+
+            showToast('تم تسليم الطلب بنجاح ✅');
+            // fade out then remove
+            const card = document.getElementById('order-' + orderId);
+            if (card) {
+                card.classList.add('fading-out');
+                setTimeout(() => {
+                    delete ordersMap[orderId];
+                    renderAllOrders();
+                    fetchDailyStats();
+                }, 5000);
+            } else {
+                delete ordersMap[orderId];
+                renderAllOrders();
+                fetchDailyStats();
+            }
+        }
+
+        async function cancelOrder(orderId) {
+            const { error } = await sb
+                .from('orders')
+                .update({ status: 'cancelled' })
+                .eq('id', orderId);
+            if (error) { showToast('حدث خطأ', 'error'); return; }
+
+            showToast('تم إلغاء الطلب', 'error');
+            const card = document.getElementById('order-' + orderId);
+            if (card) {
+                card.classList.add('fading-out');
+                setTimeout(() => {
+                    delete ordersMap[orderId];
+                    renderAllOrders();
+                }, 600);
+            } else {
+                delete ordersMap[orderId];
+                renderAllOrders();
+            }
+        }
+
+        // ========================
+        // 9. Realtime Subscription
+        // ========================
+        function subscribeToOrders() {
+            sb.channel('orders-realtime')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'orders'
+                }, payload => {
+                    const { eventType, new: newRow, old: oldRow } = payload;
+
+                    if (eventType === 'INSERT') {
+                        if (newRow.status === 'pending' || newRow.status === 'preparing') {
+                            ordersMap[newRow.id] = newRow;
+                            renderAllOrders();
+                            showToast('🔔 طلب جديد وصل!');
+                        }
+                    } else if (eventType === 'UPDATE') {
+                        if (newRow.status === 'delivered' || newRow.status === 'cancelled') {
+                            // Already handled locally, but sync if changed from another tab
+                            if (ordersMap[newRow.id]) {
+                                delete ordersMap[newRow.id];
+                                renderAllOrders();
+                            }
+                        } else {
+                            ordersMap[newRow.id] = newRow;
+                            renderAllOrders();
+                        }
+                    } else if (eventType === 'DELETE') {
+                        if (oldRow && ordersMap[oldRow.id]) {
+                            delete ordersMap[oldRow.id];
+                            renderAllOrders();
+                        }
+                    }
+                })
+                .subscribe();
+        }
+
+        function subscribeToBuffetSettings() {
+            sb.channel('buffet-settings-realtime')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'buffet_settings'
+                }, payload => {
+                    if (payload.new && payload.new.status) {
+                        buffetStatus = payload.new.status;
+                        renderBuffetStatus();
+                    }
+                })
+                .subscribe();
+        }
+
+        // ========================
+        // 10. Logout
+        // ========================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('user');
+            window.location.href = '/index.html';
+        });
+
+        // ========================
+        // 11. Init
+        // ========================
+        async function init() {
+            currentUser = loadUser();
+            if (!currentUser) return;
+            renderUserHeader();
+            document.documentElement.classList.remove('auth-pending');
+
+            await Promise.all([
+                fetchBuffetStatus(),
+                fetchOrders(),
+                fetchDailyStats()
+            ]);
+
+            subscribeToOrders();
+            subscribeToBuffetSettings();
+        }
+
+        // ========================
+        // 12. Product Management
+        // ========================
+        let productsData = [];
+        let editingProductStatus = 'available';
+
+        // --- Modal open/close ---
+        document.getElementById('manageProductsBtn').addEventListener('click', () => {
+            openModal('productsModal');
+            loadProducts();
+        });
+        document.getElementById('closeProductsModal').addEventListener('click', () => closeModal('productsModal'));
+        document.getElementById('closeEditModal').addEventListener('click', () => closeModal('productEditModal'));
+        document.getElementById('cancelEditBtn').addEventListener('click', () => closeModal('productEditModal'));
+        document.getElementById('productsModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('productsModal'); });
+        document.getElementById('productEditModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('productEditModal'); });
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // --- Load products from Supabase ---
+        async function loadProducts() {
+            document.getElementById('productsList').innerHTML = `
+                <div class="products-loading">
+                    <div class="loading-spinner-dark"></div>جاري التحميل...
+                </div>`;
+            const { data, error } = await sb
+                .from('products')
+                .select('*')
+                .order('name', { ascending: true });
+            if (error) {
+                document.getElementById('productsList').innerHTML = `<div class="products-empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>تعذر تحميل المنتجات</div>`;
+                return;
+            }
+            productsData = data || [];
+            renderProductsList();
+        }
+
+        function renderProductsList() {
+            const list = document.getElementById('productsList');
+            if (productsData.length === 0) {
+                list.innerHTML = `<div class="products-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    لا توجد منتجات بعد، أضف أول منتج الآن
+                </div>`;
+                return;
+            }
+            list.innerHTML = productsData.map(p => {
+                const isAvailable = p.is_available !== false;
+                const qty = p.stock ?? 0;
+                const qtyClass = qty > 0 ? 'in-stock' : 'out-stock';
+                const emoji = getProductEmoji(p.category || '');
+                return `
+                <div class="product-row" id="prod-${p.id}">
+                    <div class="product-icon">${emoji}</div>
+                    <div class="product-info">
+                        <div class="product-name">${escHtml(p.name || '—')}</div>
+                        <div class="product-meta">
+                            <span class="product-price">${parseFloat(p.price || 0).toFixed(2)} ج</span>
+                            ${p.category ? `<span class="product-category">${escHtml(p.category)}</span>` : ''}
+                            <span class="product-qty-badge ${qtyClass}">الكمية: ${qty}</span>
+                        </div>
+                    </div>
+                    <span class="product-status-badge ${isAvailable ? 'available' : 'unavailable'}">${isAvailable ? 'متاح' : 'غير متاح'}</span>
+                    <div class="product-actions">
+                        <button class="prod-btn edit" title="تعديل" onclick="openEditProduct('${p.id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="prod-btn delete" title="حذف" onclick="deleteProduct('${p.id}', '${escHtml(p.name || '')}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function getProductEmoji(category) {
+            const map = { 'مشروبات': '🥤', 'وجبات': '🍽️', 'حلويات': '🍰', 'وجبات خفيفة': '🥪', 'عصائر': '🧃', 'قهوة': '☕', 'شاي': '🍵' };
+            return map[category] || '🛒';
+        }
+
+        // --- Open edit modal (add or edit) ---
+        function openEditProduct(productId) {
+            if (productId === 'new') {
+                document.getElementById('editModalTitle').textContent = 'إضافة منتج جديد';
+                document.getElementById('editProductId').value = '';
+                document.getElementById('editProductName').value = '';
+                document.getElementById('editProductPrice').value = '';
+                document.getElementById('editProductQty').value = '';
+                document.getElementById('editProductCategory').value = '';
+                setEditStatus('available');
+            } else {
+                const p = productsData.find(x => String(x.id) === String(productId));
+                if (!p) return;
+                document.getElementById('editModalTitle').textContent = 'تعديل المنتج';
+                document.getElementById('editProductId').value = p.id;
+                document.getElementById('editProductName').value = p.name || '';
+                document.getElementById('editProductPrice').value = p.price || '';
+                document.getElementById('editProductQty').value = p.stock ?? '';
+                document.getElementById('editProductCategory').value = p.category || '';
+                setEditStatus(p.is_available !== false ? 'available' : 'unavailable');
+            }
+            openModal('productEditModal');
+        }
+
+        document.getElementById('addProductBtn').addEventListener('click', () => openEditProduct('new'));
+
+        function setEditStatus(val) {
+            editingProductStatus = val;
+            document.getElementById('toggleAvailable').classList.toggle('active', val === 'available');
+            document.getElementById('toggleUnavailable').classList.toggle('active', val === 'unavailable');
+        }
+
+        // --- Save product ---
+        document.getElementById('saveProductBtn').addEventListener('click', async () => {
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('editProductName').value.trim();
+            const price = parseFloat(document.getElementById('editProductPrice').value) || 0;
+            const qty = parseInt(document.getElementById('editProductQty').value) || 0;
+            const category = document.getElementById('editProductCategory').value.trim();
+
+            if (!name) { showToast('يرجى إدخال اسم المنتج', 'error'); return; }
+
+            const payload = { 
+                name, 
+                price, 
+                stock: qty, 
+                category, 
+                is_available: editingProductStatus === 'available'
+            };
+            let error;
+
+            if (id) {
+                ({ error } = await sb.from('products').update(payload).eq('id', id));
+            } else {
+                ({ error } = await sb.from('products').insert(payload));
+            }
+
+            if (error) { 
+                console.error('FULL ERROR:', JSON.stringify(error, null, 2));
+                alert(JSON.stringify(error, null, 2));
+                return; 
+            }
+
+            showToast(id ? 'تم تحديث المنتج ✅' : 'تم إضافة المنتج ✅');
+            closeModal('productEditModal');
+            loadProducts();
+        });
+
+        // --- Delete product ---
+        async function deleteProduct(productId, name) {
+            if (!confirm(`هل أنت متأكد من حذف المنتج "${name}"؟`)) return;
+            const { error } = await sb.from('products').delete().eq('id', productId);
+            if (error) { showToast('تعذر حذف المنتج', 'error'); return; }
+            showToast('تم حذف المنتج');
+            loadProducts();
+        }
+
+        init();
+    </script>
+</body>
+</html>

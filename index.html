@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول — نظام البوفيه</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            min-height: 600px;
+        }
+
+        .login-form-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2.5rem 2rem;
+            background: #ffffff;
+            order: 1;
+        }
+
+        .logo-icon {
+            display: inline-flex;
+            height: 4rem;
+            width: 4rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #02cf65, #009447);
+            color: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .login-form-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+        }
+
+        .login-form-section .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .input-wrapper .input-icon svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.7rem 2.5rem 0.7rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            color: #0f172a;
+            direction: ltr;
+            text-align: right;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+            background: #ffffff;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #94a3b8;
+        }
+
+        .password-toggle {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: #475569;
+        }
+
+        .password-toggle svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #02cf65, #009447);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.35);
+            margin-top: 0.5rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(245, 158, 11, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0px);
+        }
+
+        .login-btn svg {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .footer-meta {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .footer-meta p:last-child {
+            margin-top: 0.25rem;
+        }
+
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem 2rem;
+            background: linear-gradient(145deg, oklch(58% .16 152), #009447);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            order: 2;
+        }
+
+        .hero-section .bg-decoration {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .hero-section .bg-decoration .circle-1 {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 18rem;
+            height: 18rem;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: spin 40s linear infinite;
+        }
+
+        .hero-section .bg-decoration .circle-2 {
+            position: absolute;
+            bottom: 10%;
+            left: 10%;
+            width: 14rem;
+            height: 14rem;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: spin-reverse 50s linear infinite;
+        }
+
+        .hero-section .bg-decoration .blur {
+            position: absolute;
+            top: 30%;
+            left: 20%;
+            width: 12rem;
+            height: 12rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            to { transform: rotate(-360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 28rem;
+        }
+
+        .hero-icon {
+            display: inline-flex;
+            height: 6rem;
+            width: 6rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(4px);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .hero-icon:hover {
+            transform: scale(1.05);
+        }
+
+        .hero-icon svg {
+            width: 3.5rem;
+            height: 3.5rem;
+            animation: pulse-icon 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-icon {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .hero-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            animation: fade-in 0.6s ease-out 0.15s backwards;
+        }
+
+        .hero-content .divider {
+            width: 5rem;
+            height: 0.25rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 2rem;
+            margin: 0.75rem auto 1.25rem;
+            animation: scale-in 0.6s ease-out 0.3s backwards;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            line-height: 1.7;
+            animation: fade-in 0.6s ease-out 0.4s backwards;
+        }
+
+        .hero-emoji-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            margin-top: 2rem;
+            font-size: 2.2rem;
+        }
+
+        .hero-emoji-row span {
+            display: inline-block;
+            transition: transform 0.2s ease;
+            animation: fade-in 0.5s ease-out backwards;
+        }
+
+        .hero-emoji-row span:hover {
+            transform: scale(1.2);
+        }
+
+        .hero-emoji-row span:nth-child(1) { animation-delay: 0.6s; }
+        .hero-emoji-row span:nth-child(2) { animation-delay: 0.72s; }
+        .hero-emoji-row span:nth-child(3) { animation-delay: 0.84s; }
+        .hero-emoji-row span:nth-child(4) { animation-delay: 0.96s; }
+        .hero-emoji-row span:nth-child(5) { animation-delay: 1.08s; }
+
+        @keyframes fade-in {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scale-in {
+            0% { transform: scaleX(0); opacity: 0; }
+            100% { transform: scaleX(1); opacity: 1; }
+        }
+
+        .coffee-icon {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            opacity: 0.2;
+            width: 2.5rem;
+            height: 2.5rem;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+            border-right: 4px solid #b91c1c;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @media (max-width: 900px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                border-radius: 1rem;
+                min-height: auto;
+            }
+            .login-form-section { order: 2; padding: 2rem 1.5rem; }
+            .hero-section { order: 1; padding: 2rem 1.5rem; min-height: 280px; }
+            .hero-content h2 { font-size: 2rem; }
+            .hero-icon { height: 4.5rem; width: 4.5rem; }
+            .hero-icon svg { width: 2.5rem; height: 2.5rem; }
+            .hero-emoji-row { font-size: 1.8rem; gap: 1rem; }
+            .login-form-section h1 { font-size: 1.75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .login-form-section { padding: 1.5rem 1rem; }
+            .hero-section { padding: 1.5rem 1rem; min-height: 220px; }
+            .hero-content h2 { font-size: 1.5rem; }
+            .hero-content p { font-size: 0.95rem; }
+            .hero-emoji-row { font-size: 1.5rem; gap: 0.75rem; }
+            .login-btn { font-size: 0.95rem; padding: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+
+        <!-- الجانب الأيمن: نموذج تسجيل الدخول -->
+        <div class="login-form-section">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
+                    <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/>
+                    <path d="m2.1 21.8 6.4-6.3"/>
+                    <path d="m19 5-7 7"/>
+                </svg>
+            </div>
+            <h1>تسجيل الدخول</h1>
+            <p class="subtitle">للموظفين والمستفيدين من خدمة البوفيه</p>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">الاسم</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="username" placeholder="أدخل اسمك" autocomplete="username" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </span>
+                        <input type="password" id="password" placeholder="أدخل كلمة المرور" minlength="4" required dir="ltr">
+                        <button type="button" class="password-toggle" id="togglePassword" aria-label="إظهار كلمة المرور">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m10 17 5-5-5-5"/>
+                        <path d="M15 12H3"/>
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    </svg>
+                    <span id="btnText">دخول إلى النظام</span>
+                </button>
+            </form>
+
+            <div class="footer-meta">
+                <p>نظام إدارة طلبات البوفيه</p>
+                <p>الإصدار 1.0</p>
+            </div>
+        </div>
+
+        <!-- الجانب الأيسر: البانر الترويجي -->
+        <div class="hero-section">
+            <div class="bg-decoration">
+                <div class="circle-1"></div>
+                <div class="circle-2"></div>
+                <div class="blur"></div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
+                        <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/>
+                        <path d="m2.1 21.8 6.4-6.3"/>
+                        <path d="m19 5-7 7"/>
+                    </svg>
+                </div>
+                <h2>أهلاً بك في البوفيه</h2>
+                <div class="divider"></div>
+                <p>وجباتك المفضلة بضغطة زر — سريع، طازج، ومُعدّ لك</p>
+                <div class="hero-emoji-row">
+                    <span>🍰</span>
+                    <span>🥪</span>
+                    <span>🍕</span>
+                    <span>🥗</span>
+                    <span>☕</span>
+                </div>
+            </div>
+
+            <svg class="coffee-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v2"/>
+                <path d="M14 2v2"/>
+                <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
+                <path d="M6 2v2"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT الكامل لتسجيل الدخول مع Supabase                      -->
+    <!-- ============================================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ========================
+        // 1. تهيئة Supabase
+        // ========================
+        const SUPABASE_URL = 'https://hnhocwwupkdbngbdzpnl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuaG9jd3d1cGtkYm5nYmR6cG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzAyMTIsImV4cCI6MjA5NzYwNjIxMn0.6WnDf6MWPp-avFIXUgbxPQpNDcbxVGvo7iOswxdeNEg';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ========================
+        // 2. عناصر DOM
+        // ========================
+        const form = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const errorDiv = document.getElementById('errorMessage');
+
+        // ========================
+        // 3. دالة عرض الخطأ
+        // ========================
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function hideError() {
+            errorDiv.classList.remove('show');
+        }
+
+        // ========================
+        // 4. تبديل إظهار كلمة المرور
+        // ========================
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        });
+
+        // ========================
+        // 5. معالج تقديم النموذج
+        // ========================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideError();
+
+            const userName = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!userName || !password) {
+                showError('يرجى إدخال الاسم وكلمة المرور.');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner"></span> جاري التحقق...';
+
+            try {
+                // ==============================================
+                // 6. التحقق من تسجيل الدخول عبر دالة RPC
+                // ==============================================
+                const { data, error } = await supabaseClient
+                    .rpc('login_by_username', {
+                        p_username: userName,
+                        p_password: password
+                    });
+
+                if (error) {
+                    console.error('Supabase error:', error);
+                    showError('حدث خطأ في الاتصال بقاعدة البيانات. حاول مرة أخرى.');
+                    return;
+                }
+
+                // rpc بهذا التعريف يرجع مصفوفة (table function)
+                const result = Array.isArray(data) ? data[0] : data;
+
+                if (!result) {
+                    showError('❌ الاسم أو كلمة المرور غير صحيحة.');
+                    return;
+                }
+
+                // ==============================================
+                // 7. تسجيل الدخول ناجح ✅
+                // ==============================================
+                const userType = result.user_type; // 'worker' | 'consumer' | 'admin' | 'data_entry' | 'manager'
+
+                sessionStorage.setItem('user', JSON.stringify({
+                    id: result.id,
+                    user_code: result.user_code,
+                    username: result.username,
+                    user_type: userType
+                }));
+
+                console.log('✅ تسجيل الدخول ناجح! المستخدم:', result.username, 'النوع:', userType);
+
+                // ==============================================
+                // 8. التوجيه حسب نوع المستخدم
+                // ==============================================
+                const redirectMap = {
+                    'admin': '/admin.html',
+                    'worker': '/worker.html',
+                    'consumer': '/consumer.html',
+                    'data_entry': '/data-entry.html',
+                    'manager': '/manage.html'
+                };
+
+                const redirectUrl = redirectMap[userType];
+                
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    showError('⚠️ نوع المستخدم غير معروف. تواصل مع الدعم.');
+                    console.warn('⚠️ نوع مستخدم غير معروف:', userType);
+                }
+
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                showError('حدث خطأ غير متوقع. حاول مرة أخرى.');
+            } finally {
+                loginBtn.disabled = false;
+                btnText.innerHTML = 'دخول إلى النظام';
+            }
+        });
+
+        // ========================
+        // 9. إزالة رسالة الخطأ عند الكتابة
+        // ========================
+        usernameInput.addEventListener('input', hideError);
+        passwordInput.addEventListener('input', hideError);
+
+        // ========================
+        // 10. تنبيهات للمطور
+        // ========================
+        console.log('✅ نظام تسجيل الدخول مع Supabase جاهز.');
+        console.log('📌 أنواع المستخدمين المدعومة: admin, worker, consumer, data_entry, manager');
+        
+        if (window.location.protocol === 'file:') {
+            console.warn('⚠️ تنبيه: أنت تشغل هذا الملف محلياً (file://). قد لا تعمل بعض الميزات بشكل صحيح.');
+            console.warn('💡 يُفضل تشغيله عبر خادم محلي مثل Live Server في VS Code.');
+        }
+    </script>
+</body>
+</html>
