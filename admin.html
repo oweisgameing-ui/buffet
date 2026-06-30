@@ -421,6 +421,73 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
+        /* ============== FILE INPUT STYLES ============== */
+        .file-upload-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 0.7rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafbfc;
+        }
+        .file-upload-area:hover {
+            border-color: var(--green);
+            background: var(--green-bg);
+        }
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+        .file-upload-area .upload-icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .file-upload-area .upload-text {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .file-preview {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: #f8fafc;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .file-preview.show {
+            display: flex;
+        }
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 0.4rem;
+            border: 1px solid var(--border);
+        }
+        .file-preview .file-name {
+            font-size: 0.85rem;
+            color: var(--text);
+            flex: 1;
+        }
+        .file-preview .file-remove {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .file-preview .file-remove:hover {
+            opacity: 0.7;
+        }
+
         /* ============== TOAST ============== */
         .toast {
             position: fixed; top: 1.5rem; left: 50%;
@@ -852,8 +919,19 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>رابط صورة (اختياري)</label>
-                <input type="text" id="productFormImage" placeholder="https://...">
+                <label>صورة المنتج</label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <input type="file" id="productFormImage" accept="image/*">
+                        <span class="upload-icon">📷</span>
+                        <span class="upload-text">انقر لرفع صورة من الجهاز</span>
+                    </div>
+                    <div class="file-preview" id="filePreview">
+                        <img id="filePreviewImg" src="" alt="معاينة الصورة">
+                        <span class="file-name" id="filePreviewName">image.jpg</span>
+                        <button class="file-remove" id="fileRemoveBtn" title="إزالة الصورة">✕</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -949,7 +1027,7 @@
     // 1. Supabase Init
     // ========================
     const SUPABASE_URL = 'https://hnhocwwupkdbngbdzpnl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuaG9jd3d1cGtkYm5nYmR6cG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzAyMTIsImV4cCI6MjA5NzYwNjIxMn0.6WnDf6MWPp-avFIXUgbxPQpNDcbxVGvo7iOswxdeNEg'; // <-- غيّر هذا
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuaG9jd3d1cGtkYm5nYmR6cG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzAyMTIsImV4cCI6MjA5NzYwNjIxMn0.6WnDf6MWPp-avFIXUgbxPQpNDcbxVGvo7iOswxdeNEg';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ========================
@@ -959,6 +1037,8 @@
     let allProducts = [];
     let allUsers = [];
     let allOrders = [];
+    let selectedImageFile = null;
+    let existingImageUrl = null;
 
     const userTypeLabels = { worker: 'عامل', consumer: 'مستهلك', admin: 'مدير' };
     const userTypePillClass = { worker: 'blue', consumer: 'green', admin: 'purple' };
@@ -1170,6 +1250,105 @@
     }
     document.getElementById('productSearch').addEventListener('input', renderProductsTable);
 
+    // ========================================================================
+    // PRODUCT IMAGE UPLOAD HANDLING
+    // ========================================================================
+    const fileInput = document.getElementById('productFormImage');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const filePreview = document.getElementById('filePreview');
+    const filePreviewImg = document.getElementById('filePreviewImg');
+    const filePreviewName = document.getElementById('filePreviewName');
+    const fileRemoveBtn = document.getElementById('fileRemoveBtn');
+
+    // Click on upload area triggers file input
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showToast('يرجى اختيار ملف صورة صالح', 'error');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('حجم الصورة يجب أن لا يتجاوز 5 ميجابايت', 'error');
+            fileInput.value = '';
+            return;
+        }
+
+        selectedImageFile = file;
+        existingImageUrl = null;
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            filePreviewImg.src = event.target.result;
+            filePreviewName.textContent = file.name;
+            filePreview.classList.add('show');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Remove selected image
+    fileRemoveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedImageFile = null;
+        existingImageUrl = null;
+        fileInput.value = '';
+        filePreview.classList.remove('show');
+        filePreviewImg.src = '';
+        filePreviewName.textContent = '';
+    });
+
+    // Upload image to Supabase Storage
+    async function uploadProductImage(productId, file) {
+        if (!file) return null;
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${productId}-${Date.now()}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+        
+        const { error: uploadError } = await sb.storage
+            .from('product-images')
+            .upload(filePath, file);
+        
+        if (uploadError) {
+            console.error('Upload error:', uploadError);
+            return null;
+        }
+        
+        // Get public URL
+        const { data: urlData } = sb.storage
+            .from('product-images')
+            .getPublicUrl(filePath);
+        
+        return urlData.publicUrl;
+    }
+
+    // Delete old image from storage
+    async function deleteOldImage(imageUrl) {
+        if (!imageUrl) return;
+        try {
+            // Extract path from URL
+            const urlParts = imageUrl.split('/');
+            const filePath = urlParts.slice(urlParts.indexOf('product-images') + 1).join('/');
+            if (filePath) {
+                await sb.storage.from('product-images').remove([filePath]);
+            }
+        } catch (e) {
+            console.warn('Failed to delete old image:', e);
+        }
+    }
+
+    // ========================================================================
+    // PRODUCT FORM
+    // ========================================================================
     function resetProductForm() {
         document.getElementById('productFormId').value = '';
         document.getElementById('productFormName').value = '';
@@ -1177,7 +1356,12 @@
         document.getElementById('productFormCategory').value = 'food';
         document.getElementById('productFormStock').value = '';
         document.getElementById('productFormAvailable').value = 'true';
-        document.getElementById('productFormImage').value = '';
+        selectedImageFile = null;
+        existingImageUrl = null;
+        fileInput.value = '';
+        filePreview.classList.remove('show');
+        filePreviewImg.src = '';
+        filePreviewName.textContent = '';
     }
 
     document.getElementById('btnAddProduct').addEventListener('click', () => {
@@ -1195,7 +1379,20 @@
         document.getElementById('productFormCategory').value = p.category;
         document.getElementById('productFormStock').value = p.stock;
         document.getElementById('productFormAvailable').value = String(p.is_available);
-        document.getElementById('productFormImage').value = p.image_url || '';
+        
+        // Handle existing image
+        if (p.image_url) {
+            existingImageUrl = p.image_url;
+            filePreviewImg.src = p.image_url;
+            filePreviewName.textContent = 'الصورة الحالية';
+            filePreview.classList.add('show');
+        } else {
+            existingImageUrl = null;
+            filePreview.classList.remove('show');
+        }
+        selectedImageFile = null;
+        fileInput.value = '';
+        
         document.getElementById('modalProductTitle').textContent = 'تعديل المنتج';
         openModal('modalProduct');
     };
@@ -1207,20 +1404,72 @@
         const category = document.getElementById('productFormCategory').value;
         const stock = parseInt(document.getElementById('productFormStock').value, 10) || 0;
         const isAvailable = document.getElementById('productFormAvailable').value === 'true' && stock > 0;
-        const imageUrl = document.getElementById('productFormImage').value.trim() || null;
 
         if (!name || isNaN(price)) { showToast('يرجى إدخال اسم وسعر صحيحين', 'error'); return; }
 
-        const payload = { name, price, category, stock, is_available: isAvailable, image_url: imageUrl };
+        let imageUrl = existingImageUrl;
+
+        // If there's a new image selected, upload it
+        if (selectedImageFile) {
+            // If editing, delete old image first
+            if (id && existingImageUrl) {
+                await deleteOldImage(existingImageUrl);
+            }
+            
+            // Generate a temporary ID for new products or use existing ID
+            const productId = id || `temp-${Date.now()}`;
+            const uploadedUrl = await uploadProductImage(productId, selectedImageFile);
+            if (uploadedUrl) {
+                imageUrl = uploadedUrl;
+            } else {
+                showToast('فشل رفع الصورة، حاول مرة أخرى', 'error');
+                return;
+            }
+        }
+
+        const payload = { 
+            name, 
+            price, 
+            category, 
+            stock, 
+            is_available: isAvailable,
+            image_url: imageUrl
+        };
 
         let error;
         if (id) {
             ({ error } = await sb.from('products').update(payload).eq('id', id));
         } else {
-            ({ error } = await sb.from('products').insert(payload));
+            // For new products, insert without image first to get ID, then upload image
+            const { data: newProduct, error: insertError } = await sb.from('products').insert(payload).select().single();
+            if (insertError) {
+                console.error(insertError);
+                showToast('حدث خطأ أثناء الحفظ', 'error');
+                return;
+            }
+            
+            // If we uploaded an image with temp ID, update with actual ID
+            if (selectedImageFile && imageUrl) {
+                // The image was uploaded with a temp name, we need to move/rename it
+                // For simplicity, we'll re-upload with the actual product ID
+                await deleteOldImage(imageUrl); // Delete temp image
+                const finalUrl = await uploadProductImage(newProduct.id, selectedImageFile);
+                if (finalUrl) {
+                    await sb.from('products').update({ image_url: finalUrl }).eq('id', newProduct.id);
+                }
+            }
+            
+            showToast('تم إضافة المنتج بنجاح');
+            closeModal('modalProduct');
+            await reloadAll();
+            return;
         }
 
-        if (error) { console.error(error); showToast('حدث خطأ أثناء الحفظ', 'error'); return; }
+        if (error) { 
+            console.error(error); 
+            showToast('حدث خطأ أثناء الحفظ', 'error'); 
+            return; 
+        }
 
         showToast(id ? 'تم تعديل المنتج بنجاح' : 'تم إضافة المنتج بنجاح');
         closeModal('modalProduct');
@@ -1229,6 +1478,12 @@
 
     window.deleteProduct = function (id, name) {
         askConfirm(`هل أنت متأكد من حذف "${name}"؟ لا يمكن التراجع عن هذا الإجراء.`, async () => {
+            // Get product to delete its image
+            const product = allProducts.find(p => p.id === id);
+            if (product && product.image_url) {
+                await deleteOldImage(product.image_url);
+            }
+            
             const { error } = await sb.from('products').delete().eq('id', id);
             if (error) { showToast('تعذر حذف المنتج', 'error'); return; }
             showToast('تم حذف المنتج');
@@ -1642,7 +1897,6 @@
             printWin.focus();
             printWin.print();
         };
-        // بعض المتصفحات لا تُطلق onload لنافذة مكتوبة عبر document.write، لذا احتياطي إضافي:
         setTimeout(function () {
             printWin.focus();
             printWin.print();
