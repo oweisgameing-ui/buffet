@@ -275,6 +275,21 @@
         }
         .item-price { font-weight: 600; font-size: 0.85rem; color: var(--muted); }
 
+        .order-notes {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.45rem;
+            background: var(--amber-bg);
+            border: 1px dashed #fcd34d;
+            border-radius: 0.7rem;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.82rem;
+            color: #92400e;
+            margin-bottom: 0.85rem;
+        }
+        .order-notes svg { width: 1rem; height: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+        .order-notes strong { font-weight: 700; }
+
         .order-footer {
             display: flex;
             align-items: center;
@@ -420,200 +435,6 @@
             .status-bar-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
             .topbar-actions { width: 100%; justify-content: flex-end; }
         }
-
-        /* ======= MODAL ======= */
-        .modal-overlay {
-            position: fixed; inset: 0; z-index: 300;
-            background: rgba(15,23,42,0.55);
-            backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            padding: 1rem;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.25s ease;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
-
-        .modal-box {
-            background: var(--surface);
-            border-radius: 1.25rem;
-            box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3);
-            width: 100%; max-width: 680px;
-            max-height: 85vh;
-            display: flex; flex-direction: column;
-            transform: translateY(16px) scale(0.98);
-            transition: transform 0.25s ease;
-            overflow: hidden;
-        }
-        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
-        .modal-box-sm { max-width: 460px; }
-
-        .modal-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            background: #fafafa;
-            flex-shrink: 0;
-        }
-        .modal-title {
-            display: flex; align-items: center; gap: 0.6rem;
-            font-size: 1.05rem; font-weight: 700; color: var(--text);
-        }
-        .modal-title svg { width: 1.2rem; height: 1.2rem; color: var(--green-dark); }
-        .modal-close {
-            width: 2.1rem; height: 2.1rem;
-            border-radius: 0.6rem;
-            border: 1px solid var(--border);
-            background: transparent; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--muted); transition: background 0.15s;
-        }
-        .modal-close:hover { background: var(--red-bg); color: #991b1b; border-color: #fca5a5; }
-        .modal-close svg { width: 1rem; height: 1rem; }
-
-        .modal-body {
-            padding: 1.25rem 1.5rem;
-            overflow-y: auto;
-            flex: 1;
-            display: flex; flex-direction: column; gap: 1rem;
-        }
-
-        /* ======= ADD PRODUCT BUTTON ======= */
-        .add-product-btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            background: linear-gradient(135deg, #02cf65, #009447);
-            color: #fff; font-weight: 700; font-size: 0.9rem;
-            border: none; border-radius: 0.85rem; cursor: pointer;
-            box-shadow: 0 4px 12px -4px rgba(2,150,70,0.4);
-            transition: transform 0.15s, box-shadow 0.15s;
-            flex-shrink: 0;
-        }
-        .add-product-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px -4px rgba(2,150,70,0.45); }
-        .add-product-btn svg { width: 1.1rem; height: 1.1rem; }
-
-        /* ======= PRODUCTS LIST ======= */
-        .products-list { display: flex; flex-direction: column; gap: 0.75rem; }
-        .products-loading {
-            display: flex; align-items: center; justify-content: center; gap: 0.75rem;
-            padding: 3rem; color: var(--muted); font-size: 0.9rem; font-weight: 600;
-        }
-        .loading-spinner-dark {
-            width: 1.25rem; height: 1.25rem;
-            border: 2px solid var(--border);
-            border-top-color: var(--green);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            flex-shrink: 0;
-        }
-
-        .product-row {
-            display: flex; align-items: center; gap: 0.85rem;
-            background: #fafafa;
-            border: 1px solid var(--border);
-            border-radius: 0.9rem;
-            padding: 0.85rem 1rem;
-            transition: box-shadow 0.15s;
-        }
-        .product-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-
-        .product-icon {
-            width: 2.6rem; height: 2.6rem; flex-shrink: 0;
-            border-radius: 0.65rem;
-            background: var(--green-bg);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
-        }
-        .product-info { flex: 1; min-width: 0; }
-        .product-name { font-weight: 700; font-size: 0.95rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .product-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap; }
-        .product-price { font-size: 0.82rem; font-weight: 600; color: var(--green-dark); background: var(--green-bg); padding: 0.1rem 0.45rem; border-radius: 999px; }
-        .product-category { font-size: 0.78rem; color: var(--muted); }
-        .product-qty-badge {
-            font-size: 0.78rem; font-weight: 700;
-            padding: 0.1rem 0.5rem; border-radius: 999px;
-        }
-        .product-qty-badge.in-stock { background: var(--blue-bg); color: var(--blue); }
-        .product-qty-badge.out-stock { background: var(--red-bg); color: #991b1b; }
-
-        .product-status-badge {
-            font-size: 0.75rem; font-weight: 700;
-            padding: 0.2rem 0.6rem; border-radius: 999px;
-            flex-shrink: 0;
-        }
-        .product-status-badge.available { background: var(--green-bg); color: #047857; }
-        .product-status-badge.unavailable { background: var(--red-bg); color: #991b1b; }
-
-        .product-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
-        .prod-btn {
-            width: 2rem; height: 2rem;
-            border-radius: 0.5rem; border: 1px solid var(--border);
-            background: var(--surface); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--muted); transition: all 0.15s;
-        }
-        .prod-btn svg { width: 0.9rem; height: 0.9rem; }
-        .prod-btn.edit:hover { background: var(--blue-bg); color: var(--blue); border-color: #93c5fd; }
-        .prod-btn.delete:hover { background: var(--red-bg); color: #991b1b; border-color: #fca5a5; }
-
-        /* ======= FORM ======= */
-        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
-        .form-label { font-size: 0.85rem; font-weight: 600; color: var(--text); }
-        .form-input {
-            padding: 0.65rem 0.85rem;
-            border: 1.5px solid var(--border);
-            border-radius: 0.7rem;
-            font-size: 0.9rem; font-family: inherit; color: var(--text);
-            background: var(--surface);
-            transition: border-color 0.15s, box-shadow 0.15s;
-            outline: none;
-        }
-        .form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(2,207,101,0.12); }
-
-        /* ======= STATUS TOGGLE ======= */
-        .toggle-group { display: flex; gap: 0.5rem; }
-        .toggle-btn {
-            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-            padding: 0.6rem 0.9rem;
-            border-radius: 0.7rem;
-            font-size: 0.85rem; font-weight: 700;
-            cursor: pointer;
-            border: 1.5px solid var(--border);
-            background: var(--surface); color: var(--muted);
-            transition: all 0.15s;
-        }
-        .toggle-btn svg { width: 0.95rem; height: 0.95rem; }
-        .toggle-btn.active { border-color: var(--green); background: var(--green-bg); color: #047857; }
-        #toggleUnavailable.active { border-color: #fca5a5; background: var(--red-bg); color: #991b1b; }
-
-        /* ======= MODAL ACTIONS ======= */
-        .modal-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
-        .save-btn {
-            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: linear-gradient(135deg, #02cf65, #009447);
-            color: #fff; font-weight: 700; font-size: 0.9rem;
-            border: none; border-radius: 0.8rem; cursor: pointer;
-            box-shadow: 0 4px 12px -4px rgba(2,150,70,0.4);
-            transition: transform 0.15s;
-        }
-        .save-btn:hover { transform: translateY(-1px); }
-        .save-btn svg { width: 1rem; height: 1rem; }
-        .cancel-edit-btn {
-            padding: 0.75rem 1.25rem;
-            border: 1.5px solid var(--border);
-            background: var(--surface); color: var(--muted);
-            font-weight: 700; font-size: 0.9rem;
-            border-radius: 0.8rem; cursor: pointer;
-            transition: background 0.15s;
-        }
-        .cancel-edit-btn:hover { background: var(--bg); }
-
-        .products-empty {
-            text-align: center; padding: 3rem 1rem;
-            color: var(--muted); font-size: 0.9rem;
-        }
-        .products-empty svg { width: 2.5rem; height: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; display: block; margin-inline: auto; }
     </style>
 </head>
 <body>
@@ -882,6 +703,13 @@
                 </div>
             `).join('');
 
+            const notesHtml = order.notes
+                ? `<div class="order-notes">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span><strong>ملاحظة:</strong> ${escHtml(order.notes)}</span>
+                   </div>`
+                : '';
+
             const statusHtml = isPending
                 ? `<span class="status-indicator pending">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -920,6 +748,7 @@
                         </div>
                     </div>
                     <div class="order-items">${itemsHtml || '<div style="color:#94a3b8;font-size:0.85rem;">لا توجد أصناف</div>'}</div>
+                    ${notesHtml}
                 </div>
                 <div class="order-footer">
                     <div class="order-total">${(order.total_amount || 0).toFixed(2)} ج <small>إجمالي</small></div>
