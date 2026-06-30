@@ -607,6 +607,8 @@
             const { data, error } = await supabaseClient
                 .from('products')
                 .select('id, name, price, category, image_url, stock, is_available')
+                .eq('is_available', true)
+                .gt('stock', 0)
                 .order('created_at', { ascending: true });
             if (error) { showToast('تعذر تحميل المنتجات. حاول تحديث الصفحة.', 'error'); return []; }
             return data || [];
@@ -629,27 +631,25 @@
 
             grid.innerHTML = filtered.map(p => {
                 const qty = cart[p.id] || 0;
-                const available = p.is_available && p.stock > 0;
                 const categoryLabel = p.category === 'food' ? 'مأكولات' : 'مشروبات';
                 const imgSrc = p.image_url || ('https://placehold.co/400x250/f1f5f9/94a3b8?text=' + encodeURIComponent(p.name));
                 return `
-                <div class="product-card ${available ? '' : 'unavailable'}" data-id="${p.id}">
+                <div class="product-card" data-id="${p.id}">
                     <div class="product-img-wrap">
                         <img src="${imgSrc}" alt="${escapeHtml(p.name)}" loading="lazy">
                         <span class="product-tag ${p.category}">${categoryLabel}</span>
-                        ${!available ? '<div class="unavailable-banner">غير متاح حالياً</div>' : ''}
                     </div>
                     <div class="product-info">
                         <div class="product-name">${escapeHtml(p.name)}</div>
                         <div class="product-price">${p.price.toFixed(2)} ج</div>
-                        ${available ? `<div class="product-stock">
+                        <div class="product-stock">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
                             المتبقي: ${p.stock} قطعة
-                        </div>` : ''}
+                        </div>
                         <div class="qty-control">
-                            <button type="button" class="qty-btn" data-action="dec" data-id="${p.id}" ${(!available || qty === 0) ? 'disabled' : ''}>−</button>
+                            <button type="button" class="qty-btn" data-action="dec" data-id="${p.id}" ${qty === 0 ? 'disabled' : ''}>−</button>
                             <div class="qty-value">${qty}</div>
-                            <button type="button" class="qty-btn" data-action="inc" data-id="${p.id}" ${(!available || qty >= p.stock) ? 'disabled' : ''}>+</button>
+                            <button type="button" class="qty-btn" data-action="inc" data-id="${p.id}" ${qty >= p.stock ? 'disabled' : ''}>+</button>
                         </div>
                     </div>
                 </div>`;
@@ -666,7 +666,7 @@
         // 7. Summary
         // ========================
         function updateSummary() {
-            const availableCount = allProducts.filter(p => p.is_available && p.stock > 0).length;
+            const availableCount = allProducts.length;
             let selectedCount = 0, totalAmount = 0;
             Object.entries(cart).forEach(([productId, qty]) => {
                 if (qty > 0) {
